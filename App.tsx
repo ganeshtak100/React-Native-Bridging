@@ -1,97 +1,60 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-import React from 'react';
-import type {PropsWithChildren} from 'react';
+import React, {useEffect} from 'react';
 import {
+  NativeModules,
   SafeAreaView,
-  ScrollView,
-  StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useColorScheme,
   View,
+  NativeEventEmitter,
 } from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
+import {Colors} from 'react-native/Libraries/NewAppScreen';
+import CustomButtom from './ios/src/components/CustomButtom';
 
 function App(): React.JSX.Element {
+  const {CalenderModulefoo, CustomMethod} = NativeModules;
   const isDarkMode = useColorScheme() === 'dark';
 
   const backgroundStyle = {
     backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
   };
+  useEffect(() => {
+    const myEvents = new NativeEventEmitter(NativeModules.RNEventEmitter);
+    const listener = myEvents.addListener('onReady', val => {
+      console.log('Received value from IOS EventEmitter--', val);
+    });
+  }, []);
 
+  const onButtonPress = () => {
+    console.log('invoke the native module from this');
+    CalenderModulefoo.createCalenderEvent(
+      'Bithday Party',
+      'ITC Narmda0-0-',
+      (id: any) => {
+        console.log('id', id);
+      },
+    );
+    const {TEST_CONST} = CalenderModulefoo.getConstants();
+    console.log('TEST_CONST', TEST_CONST);
+  };
+  const callMethod = () => {
+    CustomMethod.CallMethod('Testing this method call from react-native');
+  };
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
+    <SafeAreaView style={[backgroundStyle, {flex: 1}]}>
+      <View
+        style={{
+          flex: 1,
+          gap: 18,
+        }}>
+        <CustomButtom
+          btnName="Callback from Native IOS  react native"
+          onPress={onButtonPress}
+        />
+        <CustomButtom btnName="Custom Method" onPress={callMethod} />
+      </View>
     </SafeAreaView>
   );
 }
