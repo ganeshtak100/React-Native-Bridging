@@ -23,7 +23,7 @@ function App(): React.JSX.Element {
   useEffect(() => {
     const myEvents = new NativeEventEmitter(NativeModules.RNEventEmitter);
     const listener = myEvents.addListener('onReady', val => {
-      console.log('Received value from IOS EventEmitter--', val);
+      console.log('Received value from IOS EventEmitter', val);
     });
   }, []);
 
